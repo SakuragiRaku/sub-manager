@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>サブスクマネージャー | サブスク管理ツール</title>
+  <meta name="description" content="契約中のサブスクリプションを一覧管理し、月額合計や更新日を可視化するツール。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- ヘッダー -->
+    <header class="header">
+      <div class="header-left">
+        <span class="logo">💳</span>
+        <h1 class="app-title">サブスクマネージャー</h1>
+      </div>
+      <div class="header-right">
+        <button class="theme-btn" id="theme-btn" title="テーマ切替">🌙</button>
+      </div>
+    </header>
+
+    <!-- ナビゲーション -->
+    <nav class="nav" id="nav">
+      <button class="nav-btn active" data-page="list">📋 一覧</button>
+      <button class="nav-btn" data-page="calendar">📅 カレンダー</button>
+      <button class="nav-btn" data-page="stats">📊 統計</button>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    <main class="main">
+
+      <!-- 一覧ページ -->
+      <section class="page active" id="page-list">
+        <!-- ダッシュボード -->
+        <div class="dashboard" id="dashboard">
+          <div class="dash-card">
+            <span class="dash-icon">💰</span>
+            <div class="dash-info">
+              <span class="dash-value" id="dash-monthly">¥0</span>
+              <span class="dash-label">月額合計</span>
+            </div>
+          </div>
+          <div class="dash-card">
+            <span class="dash-icon">📆</span>
+            <div class="dash-info">
+              <span class="dash-value" id="dash-yearly">¥0</span>
+              <span class="dash-label">年額換算</span>
+            </div>
+          </div>
+          <div class="dash-card">
+            <span class="dash-icon">📝</span>
+            <div class="dash-info">
+              <span class="dash-value" id="dash-count">0</span>
+              <span class="dash-label">契約中</span>
+            </div>
+          </div>
+          <div class="dash-card">
+            <span class="dash-icon">🔔</span>
+            <div class="dash-info">
+              <span class="dash-value" id="dash-upcoming">0</span>
+              <span class="dash-label">今月更新</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- カテゴリタブ -->
+        <div class="category-tabs" id="category-tabs">
+          <button class="cat-tab active" data-cat="all">すべて</button>
+          <button class="cat-tab" data-cat="video">🎬 動画</button>
+          <button class="cat-tab" data-cat="music">🎵 音楽</button>
+          <button class="cat-tab" data-cat="game">🎮 ゲーム</button>
+          <button class="cat-tab" data-cat="tool">🔧 ツール</button>
+          <button class="cat-tab" data-cat="learning">📚 学習</button>
+          <button class="cat-tab" data-cat="telecom">📡 通信</button>
+          <button class="cat-tab" data-cat="news">📰 ニュース</button>
+          <button class="cat-tab" data-cat="other">📌 その他</button>
+        </div>
+
+        <!-- ステータス & 検索 -->
+        <div class="filter-bar">
+          <div class="status-pills" id="status-pills">
+            <button class="status-pill active" data-status="active">契約中</button>
+            <button class="status-pill" data-status="cancelled">解約済み</button>
+            <button class="status-pill" data-status="all">すべて</button>
+          </div>
+          <input type="text" class="search-input" id="search-input" placeholder="サービス名で検索..." />
+        </div>
+
+        <!-- サブスクカードグリッド -->
+        <div class="sub-grid" id="sub-grid"></div>
+
+        <!-- 空状態 -->
+        <div class="empty-state hidden" id="empty-state">
+          <span class="empty-icon">💳</span>
+          <p class="empty-text">サブスクがまだありません</p>
+          <p class="empty-sub">下のボタンから最初のサブスクを追加しましょう！</p>
+        </div>
+
+        <!-- FAB -->
+        <button class="fab" id="add-btn" title="サブスク追加">＋</button>
+      </section>
+
+      <!-- カレンダーページ -->
+      <section class="page" id="page-calendar">
+        <div class="calendar-header">
+          <button class="cal-nav-btn" id="cal-prev">◀</button>
+          <h2 class="cal-title" id="cal-title"></h2>
+          <button class="cal-nav-btn" id="cal-next">▶</button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid">
+          <div class="cal-day-header">日</div>
+          <div class="cal-day-header">月</div>
+          <div class="cal-day-header">火</div>
+          <div class="cal-day-header">水</div>
+          <div class="cal-day-header">木</div>
+          <div class="cal-day-header">金</div>
+          <div class="cal-day-header">土</div>
+        </div>
+        <div class="cal-legend">
+          <span class="cal-legend-item"><span class="legend-dot normal"></span>更新予定</span>
+          <span class="cal-legend-item"><span class="legend-dot warning"></span>7日以内</span>
+        </div>
+      </section>
+
+      <!-- 統計ページ -->
+      <section class="page" id="page-stats">
+        <h2 class="section-title">📊 支出分析</h2>
+        <div class="stats-charts">
+          <div class="chart-card">
+            <h3 class="chart-title">カテゴリ別支出</h3>
+            <canvas id="pie-chart" width="300" height="300"></canvas>
+            <div class="chart-legend" id="pie-legend"></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">月別支出推移</h3>
+            <canvas id="bar-chart" width="500" height="300"></canvas>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 登録/編集モーダル -->
+    <div class="modal-overlay hidden" id="edit-modal">
+      <div class="modal edit-modal">
+        <h2 id="edit-modal-title">💳 サブスク追加</h2>
+        <div class="form-group">
+          <label>サービス名</label>
+          <input type="text" class="form-input" id="form-name" placeholder="例: Netflix" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>カテゴリ</label>
+            <select class="form-select" id="form-category">
+              <option value="video">🎬 動画</option>
+              <option value="music">🎵 音楽</option>
+              <option value="game">🎮 ゲーム</option>
+              <option value="tool">🔧 ツール</option>
+              <option value="learning">📚 学習</option>
+              <option value="telecom">📡 通信</option>
+              <option value="news">📰 ニュース</option>
+              <option value="other">📌 その他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>請求サイクル</label>
+            <select class="form-select" id="form-cycle">
+              <option value="monthly">月額</option>
+              <option value="yearly">年額</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>金額 (円)</label>
+            <input type="number" class="form-input" id="form-amount" placeholder="980" min="0" />
+          </div>
+          <div class="form-group">
+            <label>次回更新日</label>
+            <input type="date" class="form-input" id="form-next-date" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>ステータス</label>
+          <div class="status-toggle" id="form-status-toggle">
+            <button class="status-opt active" data-val="active">契約中</button>
+            <button class="status-opt" data-val="cancelled">解約済み</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>メモ</label>
+          <textarea class="form-textarea" id="form-memo" placeholder="備考やメモ..."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn cancel" id="edit-cancel-btn">キャンセル</button>
+          <button class="modal-btn save" id="edit-save-btn">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
